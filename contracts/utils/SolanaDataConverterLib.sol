@@ -105,10 +105,7 @@ library SolanaDataConverterLib {
     }
 
     function readLittleEndianUnsigned32(uint32 input) internal pure returns (uint32) {
-        // swap bytes
         input = ((input & 0xFF00FF00) >> 8) | ((input & 0x00FF00FF) << 8);
-
-        // swap 2-byte long pairs
         return (input >> 16) | (input << 16);
     }
 
@@ -118,14 +115,9 @@ library SolanaDataConverterLib {
     }
 
     function readLittleEndianUnsigned64(uint64 input) internal pure returns (uint64) {
-        // swap bytes
         input = ((input & 0xFF00FF00FF00FF00) >> 8) | ((input & 0x00FF00FF00FF00FF) << 8);
-
-        // swap 2-byte long pairs
         input = ((input & 0xFFFF0000FFFF0000) >> 16) | ((input & 0x0000FFFF0000FFFF) << 16);
-
-        // swap 4-byte long pairs
-        return(input >> 32) | (input << 32);
+        return (input >> 32) | (input << 32);
     }
 
     function readLittleEndianSigned64(uint64 input) internal pure returns (int64) {
@@ -135,16 +127,9 @@ library SolanaDataConverterLib {
     }
 
     function readLittleEndianUnsigned128(uint128 input) internal pure returns (uint128) {
-        // swap bytes
         input = ((input & 0xFF00FF00FF00FF00FF00FF00FF00FF00) >> 8) | ((input & 0x00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
-
-        // swap 2-byte long pairs
         input = ((input & 0xFFFF0000FFFF0000FFFF0000FFFF0000) >> 16) | ((input & 0x0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
-
-        // swap 4-byte long pairs
         input = ((input & 0xFFFFFFFF00000000FFFFFFFF00000000) >> 32) | ((input & 0x00000000FFFFFFFF00000000FFFFFFFF) << 32);
-
-        // swap 8-byte long pairs
         return (input >> 64) | (input << 64);
     }
 
@@ -156,23 +141,14 @@ library SolanaDataConverterLib {
     }
 
     function readLittleEndianUnsigned256(uint256 input) internal pure returns (uint256) {
-        // swap bytes
         input = ((input & 0xFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00) >> 8) |
-            ((input & 0x00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
-
-        // swap 2-byte long pairs
+                ((input & 0x00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF) << 8);
         input = ((input & 0xFFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000) >> 16) |
-            ((input & 0x0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
-
-        // swap 4-byte long pairs
+                ((input & 0x0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF0000FFFF) << 16);
         input = ((input & 0xFFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000) >> 32) |
-            ((input & 0x00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF) << 32);
-
-        // swap 8-byte long pairs
+                ((input & 0x00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF00000000FFFFFFFF) << 32);
         input = ((input & 0xFFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF0000000000000000) >> 64) |
-            ((input & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF) << 64);
-
-        // swap 16-byte long pairs
+                ((input & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF) << 64);
         return (input >> 128) | (input << 128);
     }
 
@@ -180,7 +156,21 @@ library SolanaDataConverterLib {
         input = ((input << 8) & 0xFF00FF00FF00FF00FF00FF00FF00FF00) | ((input >> 8) & 0x00FF00FF00FF00FF00FF00FF00FF00FF);
         input = ((input << 16) & 0xFFFF0000FFFF0000FFFF0000FFFF0000) | ((input >> 16) & 0x0000FFFF0000FFFF0000FFFF0000FFFF);
         input = ((input << 32) & 0xFFFFFFFF00000000FFFFFFFF00000000) | ((input >> 32) & 0x00000000FFFFFFFF00000000FFFFFFFF);
-        input = ((input << 64) & 0xFFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF0000000000000000) | ((input >> 64) & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF);
+        input = ((input << 64) & 0xFFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF0000000000000000) |
+                ((input >> 64) & 0x0000000000000000FFFFFFFFFFFFFFFF0000000000000000FFFFFFFFFFFFFFFF);
         return int256((input << 128) | ((input >> 128) & 0xFFFFFFFFFFFFFFFF));
+    }
+
+    function toBool(bytes memory _bytes, uint256 _start) internal pure returns (bool) {
+        require(_bytes.length >= _start + 1, "toBool_outOfBounds");
+        uint8 value;
+        assembly {
+            value := mload(add(add(_bytes, 0x1), _start))
+        }
+        return (value != 0);
+    }
+
+    function readLittleEndianUnsigned16(uint16 input) internal pure returns (uint16) {
+        return ((input >> 8) & 0x00FF) | ((input << 8) & 0xFF00);
     }
 }
