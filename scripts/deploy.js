@@ -1,31 +1,17 @@
 const hre = require("hardhat");
 
 async function main() {
-  const [deployer, user1, user2] = await hre.ethers.getSigners();
-  console.log("Deploying with:", deployer.address);
+  // Загружаем контракт
+  const Factory = await hre.ethers.getContractFactory("RaydiumFullFeature");
 
-  const ContractFactory = await hre.ethers.getContractFactory("MySPLTokenExample");
-  const contract = await ContractFactory.deploy();
-  await contract.waitForDeployment();
+  // Деплой
+  const contract = await Factory.deploy();
+  await contract.deployed();
 
-  const contractAddress = await contract.getAddress();
-  console.log("Contract deployed to:", contractAddress);
-
-  const user = user1.address;
-  const delegate = user2.address;
-  const newAuthority = deployer.address;
-
-  try {
-    const tx = await contract.executeAll(user, delegate, newAuthority);
-    console.log("executeAll() sent:", tx.hash);
-    await tx.wait();
-    console.log("✅ All actions executed");
-  } catch (error) {
-    console.error("❌ Ошибка во время executeAll:", error.message || error);
-  }
+  console.log("Контракт задеплоен по адресу:", contract.address);
 }
 
 main().catch((error) => {
-  console.error("❌ Script failed:", error.message || error);
+  console.error("Ошибка при деплое:", error);
   process.exitCode = 1;
 });
